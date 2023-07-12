@@ -4,6 +4,8 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,17 +17,32 @@ use App\Http\Controllers\LoginController;
 |
 */
 
-Route::get('/', function () {return 'Hello World';});
+Route::get('/', function () {
+    return 'Hello World';
+});
 
-Route::get('/posts', [PostController::class, 'index'])->name('home');
-Route::get('/posts/{id}', [PostController::class, 'show'])->name('getPostById');
-Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('DeletePost');
-Route::put('/posts/{id}', [PostController::class, 'update'])->name('UpdatePost');
-Route::post('/posts', [PostController::class, 'store'])->name('CreatePost');
+Route::prefix('posts')->group(function () {
+    Route::get('/', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/{id}', [PostController::class, 'show'])->name('posts.show');
+    Route::post('/', [PostController::class, 'store'])->name('posts.store');
+    Route::put('/{id}', [PostController::class, 'update'])->name('posts.update');
+    Route::delete('/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
+});
 
-Route::get('/comments', [CommentController::class, 'index'])->name('getAllComments');
+Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
 
-Route::get('/profile', function () {return 'Hello admin';})->name('profile')->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', function () {
+        return 'Hello admin';
+    })->name('profile');
 
-Route::get('/login', [LoginController::class, 'show']);
-Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
+    Route::post('/users/update-avatar', [UserController::class, 'updateAvatar'])->name('users.updateAvatar');
+});
+
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
+
+Route::get('/file', function () {
+    return response()->download(storage_path('app/jojo.jpg'));
+});
+

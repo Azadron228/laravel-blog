@@ -19,35 +19,31 @@ class Post extends Model
 
     public function getAllPosts()
     {
-        $posts = Post::with('author')->get();
+      $posts = Post::with('author')->get();
+      
 
-        // Transform the posts to include the author's name instead of author_id
-        $data = $posts->map(function ($post) {
-            return [
-                'id' => $post->id,
-                'title' => $post->title,
-                'content' => $post->content,
-                'author_name' => $post->author->name,
-            ];
-        });
+      $data = $posts->map(function ($post) {
+          return [
+              'id' => $post->id,
+              'title' => $post->title,
+              'content' => $post->content,
+              'author_name' => $post->author->name,
+          ];
+      });
 
-        return $data;
+      return $data;
     }
 
-    public function getPostById(Request $request,Post $id)
-    {
-        $post = Post::with('author')->findOrFail($id);
-
-        $postData = [
-            'id' => $post->id,
-            'title' => $post->title,
-            'content' => $post->content,
-            'author_name' => $post->author->name,
-        ];
-
-        // Return the post data as JSON response
-        return response()->json($postData);
-
+    public function getPostById($id)
+    {       
+      $post = $this->with('author')->find($id);
+     
+      return [
+      'id' => $post->id,
+      'title' => $post->title,
+      'content' => $post->content,
+      'author_name' => $post->author->name,
+      ];
     }
 
     public function createPost($data)
