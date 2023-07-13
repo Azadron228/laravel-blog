@@ -31,13 +31,13 @@ Route::prefix('posts')->group(function () {
 
 Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', function () {
-        return 'Hello admin';
-    })->name('profile');
-
-    Route::post('/users/update-avatar', [UserController::class, 'updateAvatar'])->name('users.updateAvatar');
+Route::middleware('auth.basic')->group(function () {
+  Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+  
 });
+Route::post('/users/update-avatar', [UserController::class, 'updateAvatar'])->name('users.updateAvatar');
+Route::get('/update-avatar', [UserController::class, 'showUpdateAvatarForm'])->name('update.avatar.form');
+Route::post('/update-avatar', [UserController::class, 'updateAvatar'])->name('update.avatar');
 
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');

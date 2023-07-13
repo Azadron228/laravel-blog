@@ -1,45 +1,41 @@
 <script>
   import { onMount } from 'svelte';
+  import { writeFile } from 'fs/promises';
 
-  let avatarFile;
+  let file;
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+  function handleFileChange(event) {
+    file = event.target.files[0];
+  }
 
-    const formData = new FormData();
-    formData.append('avatar', avatarFile);
-
+  async function handleSubmit() {
     try {
-      const response = await fetch('http://192.168.217.219:8000/set-avatar', {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch('http://127.0.0.1:8000/users/update-avatar', {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
-        console.log('Avatar uploaded successfully!');
+        console.log('Avatar uploaded successfully');
       } else {
-        console.error('Avatar upload failed.');
+        console.error('Error uploading avatar');
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error('Error uploading avatar', error);
     }
   }
 
   onMount(() => {
-    // You can perform additional setup tasks here if needed
+    // Optional: Perform any initializations or API calls on component mount
   });
 </script>
 
-<main>
-  <h1>Upload Avatar</h1>
-
-  <form on:submit={handleSubmit}>
-    <input type="file" bind:this={avatarFile} accept="image/*" required />
-    <button type="submit">Upload</button>
-  </form>
-</main>
-
-<style>
-  /* Add your custom styles here */
-</style>
+<div>
+  <h1>Set Avatar</h1>
+  <input type="file" accept="image/*" on:change={handleFileChange} />
+  <button on:click={handleSubmit}>Upload Avatar</button>
+</div>
 

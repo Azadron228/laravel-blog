@@ -3,30 +3,34 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
   public function updateAvatar(Request $request)
   {
-    $request->validate([
-        'avatar' => 'required|image|max:2048', // Max file size of 2MB
-    ]);
+    // $path = Storage::putFile('avatars', $request->file('avatar'));
+    $path = $request->file('avatar')->store('avatars', 'public');
+    return $path;
+  }
+  
+  public function showUpdateAvatarForm()
+  {
+    return view('update-avatar');
+  }
 
-    $user = auth()->user();
+  public function profile(Request $request)
+    {
+        $user = Auth::user();
 
-    // Delete old avatar if exists
-    if ($user->avatar) {
-        Storage::disk('public')->delete($user->avatar);
+        $data = [
+            'avatar' => $user->avatar,
+            'name' => $user->name,
+            'email' => $user->email,
+        ];
+
+        return response()->json($data);
     }
 
-    $avatarPath = $request->file('avatar')->store('avatars', 'public');
-
-    // Update the user's avatar
-    $user->avatar = $avatarPath;
-    $user->save();
-
-    return redirect()->back()->with('success', 'Avatar uploaded successfully!');
-  }
 }
