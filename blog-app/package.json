@@ -17,7 +17,7 @@
 		"@playwright/test": "^1.28.1",
 		"@skeletonlabs/skeleton": "^1.9.0",
 		"@sveltejs/adapter-auto": "^2.0.0",
-		"@sveltejs/kit": "^1.20.4",
+		"@sveltejs/kit": "^1.22.3",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"autoprefixer": "^10.4.14",
@@ -38,6 +38,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@picocss/pico": "^1.5.10",
 		"bulma": "^0.9.4",
 		"svelte-json-tree": "^1.0.0"
 	}
