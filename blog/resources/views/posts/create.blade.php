@@ -1,27 +1,30 @@
+<!-- resources/views/posts/create.blade.php -->
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Post</title>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
-    <h1>Create Post</h1>
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    <form action="{{ route('posts.store') }}" method="POST">
-        @csrf
-        <div class="form-group">
-            <label for="title">Title</label>
-            <input type="text" name="title" id="title" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="content">Content</label>
-            <textarea name="content" id="content" class="form-control" rows="5" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Create</button>
-    </form>
+    <div class="container">
+        <h1>Create Post</h1>
+        <form action="{{ route('posts.create') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="content">Content</label>
+                <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>
 

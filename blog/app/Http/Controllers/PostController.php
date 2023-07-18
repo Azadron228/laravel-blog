@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response as FacadesResponse;
+use Illuminate\Support\Facades\View as FacadesView;
+use Illuminate\View\View;
 
 class PostController extends Controller
 {
@@ -14,106 +18,56 @@ class PostController extends Controller
     {
         $this->post = $post;
     }
-    
+
+    public function showAll()
+    {
+        $posts = Post::with('user')->paginate(10);
+
+        foreach ($posts as $post) {
+            $post->user_name = $post->user->name;
+        }
+
+        $data = [
+            'current_page' => $posts->currentPage(),
+            'total_pages' => $posts->lastPage(),
+            'data' => $posts->items(),
+        ];
+
+        return response()->json($data, Response::HTTP_OK);
+    }
     
     public function create()
     {
-        return view('posts.create');
+    return FacadesView::make('posts.create');
     }
-
-    public function index()
+    public function createPost(Request $request)
     {
-        // $posts = $this->post->getAllPosts();
-        //
-        // return response()->json($posts);
-        // $post = Post::all();
-      // return response()->json($post);
-      $user = Auth::user();
-    if (!$user) {
-        return response()->json(['error' => 'Unauthenticated.'], 401);
-    }
+        // Validate the request data
+        $validatedData = $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+        ]);
 
-    // $posts = $user->posts()->latest()->get();
-    $posts = Post::where('author_id', $user->id)->latest()->get();
+        // Get the authenticated user
+        $user = Auth::user();
 
-    return response()->json($posts);
-
-
-    }
-
-    // public function store(Request $request)
-    // {
-    //     $post = $this->post->createPost($request->all());
-    //
-    //     return response()->json($post, 201);
-    // }
-    
-    public function store(Request $request)
-{
-    // Validate the request data
-    $validatedData = $request->validate([
-        'title' => 'required|max:255',
-        'description' => 'required',
-        'content' => 'required',
-    ]);
-
-    // Create a new post
-    $post = new Post;
-    $post->title = $validatedData['title'];
-    $post->description = $validatedData['description'];
-    $post->author_id = Auth::id();
-    $post->content = $validatedData['content'];
-    $post->save();
-
-    return redirect()->route('posts.index')->with('success', 'Post created successfully!');
-}
-
-    public function show($id)
-    {
-        // $post = $this->post->getPostById($id);
-        $post = Post::findOrFail($id);
-        return response()->json($post);
-    }
-
-    // public function update(Request $request, $id)
-    // {
-    //   if (! Gate::allows('update-post', $post)) {
-    //         abort(403);
-    //   }
-    //
-    //   $post = $this->post->updatePost($id, $request->all());
-    //   return response()->json($post);
-    // }
-    //
-
-    public function edit($id)
-    {
-        $post = Post::findOrFail($id);
-
-        // Check if the authenticated user owns the post
-        if ($post->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'You are not authorized to edit this post.');
-        }
-
-        return view('profile.edit', compact('post'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $post = Post::findOrFail($id);
-
-        // Check if the authenticated user owns the post
-        if ($post->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'You are not authorized to update this post.');
-        }
-
-        $post->title = $request->input('title');
-        $post->content = $request->input('content');
+        // Create a new post
+        $post = new Post;
+        $post->title = $validatedData['title'];
+        $post->content = $validatedData['content'];
+        $post->user_id = $user->id;
         $post->save();
 
-        return redirect()->route('posts.edit', $id)->with('success', 'Post updated successfully!');
+        return FacadesResponse::json(['message' => 'Post created successfully'], 201);
     }
 
+    // public function findById($id)
+    // {
+    //     $post = Post::findOrFail($id);
+    //
+    //     return response()->json($post);
+    // }
+    //
     public function destroy($id)
     {
         $this->post->deletePost($id);
